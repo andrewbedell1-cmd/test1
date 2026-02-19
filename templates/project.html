@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}{{ project.name }} — Transcript PM{% endblock %}
+{% block content %}
+
+<div class="page-header" style="display:flex; justify-content:space-between; align-items:flex-start;">
+  <div>
+    <h1>{{ project.name }}</h1>
+    {% if project.description %}<p>{{ project.description }}</p>{% endif %}
+  </div>
+  <div style="display:flex; gap:0.5rem; flex-shrink:0;">
+    <a href="/export/calendar/project/{{ project.id }}" class="btn btn-green btn-sm">⬇ Export .ics</a>
+    <a href="/projects" class="btn btn-secondary btn-sm">← Projects</a>
+  </div>
+</div>
+
+<!-- Stats row -->
+<div style="display:flex; gap:1rem; margin-bottom:1.5rem; flex-wrap:wrap;">
+  <div class="card" style="flex:1; min-width:140px; text-align:center; padding:1rem;">
+    <div style="font-size:2rem; font-weight:700; color:#4f46e5;">{{ transcripts | length }}</div>
+    <div style="font-size:0.85rem; color:#6b7280;">Transcripts</div>
+  </div>
+  <div class="card" style="flex:1; min-width:140px; text-align:center; padding:1rem;">
+    <div style="font-size:2rem; font-weight:700; color:#f59e0b;">{{ open_items | length }}</div>
+    <div style="font-size:0.85rem; color:#6b7280;">Open Actions</div>
+  </div>
+  <div class="card" style="flex:1; min-width:140px; text-align:center; padding:1rem;">
+    <div style="font-size:2rem; font-weight:700; color:#059669;">{{ done_items | length }}</div>
+    <div style="font-size:0.85rem; color:#6b7280;">Completed</div>
+  </div>
+</div>
+
+<!-- Open action items -->
+<div class="card">
+  <div class="section-label">Open Action Items</div>
+  {% if open_items %}
+  <div style="overflow-x:auto;">
+  <table class="action-table">
+    <thead>
+      <tr>
+        <th>Task</th>
+        <th>Assignee</th>
+        <th>Due Date</th>
+        <th>Priority</th>
+        <th>Source</th>
+        <th>Done?</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in open_items %}
+      <tr>
+        <td>
+          <strong>{{ item.title }}</strong>
+          {% if item.description %}<br/><span style="color:#6b7280; font-size:0.8rem;">{{ item.description }}</span>{% endif %}
+        </td>
+        <td>{{ item.assignee or "—" }}</td>
+        <td>{{ item.due_date or "—" }}</td>
+        <td><span class="badge badge-{{ item.priority }}">{{ item.priority }}</span></td>
+        <td><a href="/transcript/{{ item.transcript_id }}" style="font-size:0.8rem;">View transcript</a></td>
+        <td>
+          <form method="post" action="/action/{{ item.id }}/status">
+            <input type="hidden" name="status" value="done" />
+            <input type="hidden" name="redirect_to" value="/project/{{ project.id }}" />
+            <button type="submit" class="btn btn-green btn-sm">✓ Done</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}<p class="empty">No open action items. 🎉</p>{% endif %}
+</div>
+
+<!-- Completed action items -->
+{% if done_items %}
+<details class="card">
+  <summary style="font-weight:600; cursor:pointer; user-select:none;">Completed ({{ done_items | length }})</summary>
+  <div style="overflow-x:auto; margin-top:1rem;">
+  <table class="action-table">
+    <thead>
+      <tr><th>Task</th><th>Assignee</th><th>Due Date</th><th>Priority</th><th>Reopen</th></tr>
+    </thead>
+    <tbody>
+      {% for item in done_items %}
+      <tr style="opacity:0.6;">
+        <td><s>{{ item.title }}</s></td>
+        <td>{{ item.assignee or "—" }}</td>
+        <td>{{ item.due_date or "—" }}</td>
+        <td><span class="badge badge-{{ item.priority }}">{{ item.priority }}</span></td>
+        <td>
+          <form method="post" action="/action/{{ item.id }}/status">
+            <input type="hidden" name="status" value="open" />
+            <input type="hidden" name="redirect_to" value="/project/{{ project.id }}" />
+            <button type="submit" class="btn btn-secondary btn-sm">↩ Reopen</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</details>
+{% endif %}
+
+<!-- Transcripts in project -->
+<div class="card">
+  <div class="section-label">Transcripts in this Project</div>
+  {% if transcripts %}
+    {% for t in transcripts %}
+    <div class="transcript-row">
+      <div>
+        <a href="/transcript/{{ t.id }}"><strong>{{ t.filename }}</strong></a>
+        <br/><span style="font-size:0.8rem; color:#9ca3af;">{{ t.created_at[:16] | replace("T", " ") }}</span>
+      </div>
+      <a href="/transcript/{{ t.id }}" class="btn btn-secondary btn-sm">View →</a>
+    </div>
+    {% endfor %}
+  {% else %}
+    <p class="empty">No transcripts assigned to this project yet. Upload one from the home page.</p>
+  {% endif %}
+</div>
+
+{% endblock %}

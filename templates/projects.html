@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Projects — Transcript PM{% endblock %}
+{% block content %}
+
+<div class="page-header" style="display:flex; justify-content:space-between; align-items:center;">
+  <div>
+    <h1>Projects</h1>
+    <p>Organize transcripts and action items by project.</p>
+  </div>
+</div>
+
+<div class="grid-2">
+  <!-- Create project -->
+  <div class="card">
+    <h2>New Project</h2>
+    <form method="post" action="/projects/create">
+      <div class="form-group">
+        <label>Project Name</label>
+        <input type="text" name="name" required placeholder="e.g. Product Roadmap Q1" />
+      </div>
+      <div class="form-group">
+        <label>Description (optional)</label>
+        <textarea name="description" rows="3" placeholder="What is this project about?"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Create Project</button>
+    </form>
+  </div>
+
+  <!-- Projects list -->
+  <div class="card">
+    <h2>All Projects</h2>
+    {% if projects %}
+      {% for p in projects %}
+      <div class="transcript-row">
+        <div>
+          <a href="/project/{{ p.id }}"><strong>{{ p.name }}</strong></a>
+          <span style="margin-left:0.5rem; font-size:0.8rem; color:#6b7280;">{{ p.action_count }} action items</span>
+          {% if p.description %}<br/><span style="font-size:0.85rem; color:#6b7280;">{{ p.description }}</span>{% endif %}
+        </div>
+        <div style="display:flex; gap:0.5rem;">
+          <a href="/export/calendar/project/{{ p.id }}" class="btn btn-secondary btn-sm">⬇ .ics</a>
+          <a href="/project/{{ p.id }}" class="btn btn-secondary btn-sm">View →</a>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p class="empty">No projects yet. Create one above.</p>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Transcript PM — Upload{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>Call Transcript Manager</h1>
+  <p>Upload a call transcript and Claude will generate detailed notes, decisions, action items, and next steps.</p>
+</div>
+
+<div class="grid-2">
+
+  <!-- Upload form -->
+  <div class="card">
+    <h2>Upload Transcript</h2>
+    <form method="post" action="/upload" enctype="multipart/form-data">
+
+      <div class="form-group">
+        <label>Transcript file (.txt, .md, .vtt)</label>
+        <input type="file" name="file" accept=".txt,.md,.vtt,.text" />
+      </div>
+
+      <p style="text-align:center; color:#9ca3af; margin: 0.5rem 0; font-size:0.85rem;">— or paste directly —</p>
+
+      <div class="form-group">
+        <label>Paste transcript content</label>
+        <textarea name="paste_content" rows="6" placeholder="Paste your transcript here…"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Filename (if pasting)</label>
+        <input type="text" name="filename_hint" value="call-transcript.txt" />
+      </div>
+
+      <div class="form-group">
+        <label>Assign to project</label>
+        <select name="project_id">
+          <option value="0">— No project —</option>
+          {% for p in projects %}
+          <option value="{{ p.id }}">{{ p.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Or create a new project</label>
+        <input type="text" name="new_project_name" placeholder="New project name (leave blank to skip)" />
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width:100%">
+        ✨ Analyze with Claude
+      </button>
+      <p style="font-size:0.8rem; color:#6b7280; margin-top:0.5rem; text-align:center;">
+        Analysis takes 15–45 seconds depending on transcript length.
+      </p>
+    </form>
+  </div>
+
+  <!-- Recent transcripts -->
+  <div class="card">
+    <h2>Recent Transcripts</h2>
+    {% if transcripts %}
+      {% for t in transcripts %}
+      <div class="transcript-row">
+        <div>
+          <a href="/transcript/{{ t.id }}"><strong>{{ t.filename }}</strong></a>
+          {% if t.project_name %}
+          <span class="badge" style="background:#ede9fe; color:#5b21b6; margin-left:0.4rem;">{{ t.project_name }}</span>
+          {% endif %}
+          <br/>
+          <span style="font-size:0.8rem; color:#9ca3af;">{{ t.created_at[:16] | replace("T", " ") }}</span>
+        </div>
+        <a href="/transcript/{{ t.id }}" class="btn btn-secondary btn-sm">View →</a>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p class="empty">No transcripts yet. Upload one to get started.</p>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

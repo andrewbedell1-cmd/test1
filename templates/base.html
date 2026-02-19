@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Transcript PM{% endblock %}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f7fa; color: #1a1a2e; line-height: 1.6; }
+    a { color: #4f46e5; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Nav */
+    nav { background: #1a1a2e; color: #fff; padding: 0 2rem; display: flex; align-items: center; gap: 2rem; height: 56px; }
+    nav .brand { font-weight: 700; font-size: 1.1rem; color: #a5b4fc; }
+    nav a { color: #c7d2fe; font-size: 0.9rem; }
+    nav a:hover { color: #fff; text-decoration: none; }
+
+    /* Layout */
+    .container { max-width: 1100px; margin: 2rem auto; padding: 0 1.5rem; }
+    .page-header { margin-bottom: 2rem; }
+    .page-header h1 { font-size: 1.75rem; font-weight: 700; }
+    .page-header p { color: #6b7280; margin-top: 0.25rem; }
+
+    /* Cards */
+    .card { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); padding: 1.5rem; margin-bottom: 1.25rem; }
+    .card h2 { font-size: 1.15rem; margin-bottom: 0.75rem; }
+    .card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #374151; }
+
+    /* Badges */
+    .badge { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+    .badge-high { background: #fee2e2; color: #991b1b; }
+    .badge-medium { background: #fef3c7; color: #92400e; }
+    .badge-low { background: #d1fae5; color: #065f46; }
+    .badge-open { background: #dbeafe; color: #1e40af; }
+    .badge-done { background: #d1fae5; color: #065f46; }
+
+    /* Forms */
+    input, select, textarea { font-family: inherit; font-size: 0.9rem; border: 1px solid #d1d5db; border-radius: 6px; padding: 0.45rem 0.75rem; width: 100%; }
+    input:focus, select:focus, textarea:focus { outline: 2px solid #4f46e5; border-color: transparent; }
+    label { font-size: 0.85rem; font-weight: 600; color: #374151; display: block; margin-bottom: 0.3rem; }
+    .form-group { margin-bottom: 1rem; }
+
+    /* Buttons */
+    .btn { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.45rem 1rem; border-radius: 6px; font-size: 0.875rem; font-weight: 600; cursor: pointer; border: none; transition: opacity 0.15s; }
+    .btn:hover { opacity: 0.85; text-decoration: none; }
+    .btn-primary { background: #4f46e5; color: #fff; }
+    .btn-secondary { background: #e5e7eb; color: #374151; }
+    .btn-green { background: #059669; color: #fff; }
+    .btn-sm { padding: 0.3rem 0.7rem; font-size: 0.8rem; }
+
+    /* Lists */
+    ul.checklist { list-style: none; }
+    ul.checklist li { padding: 0.4rem 0; border-bottom: 1px solid #f3f4f6; display: flex; gap: 0.5rem; align-items: flex-start; }
+    ul.checklist li::before { content: "→"; color: #4f46e5; flex-shrink: 0; }
+
+    /* Action item table */
+    .action-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    .action-table th { text-align: left; padding: 0.5rem 0.75rem; background: #f9fafb; color: #6b7280; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 2px solid #e5e7eb; }
+    .action-table td { padding: 0.65rem 0.75rem; border-bottom: 1px solid #f3f4f6; vertical-align: top; }
+    .action-table tr:hover td { background: #fafafa; }
+
+    /* Section labels */
+    .section-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #6b7280; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: #e5e7eb; }
+
+    /* Summary text */
+    .summary-text { white-space: pre-wrap; line-height: 1.8; color: #374151; font-size: 0.95rem; }
+
+    /* Grid */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    @media (max-width: 700px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    /* Tag list */
+    .tag-list { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .tag { background: #ede9fe; color: #5b21b6; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.8rem; }
+
+    /* Empty state */
+    .empty { color: #9ca3af; font-style: italic; font-size: 0.9rem; }
+
+    /* Transcript row */
+    .transcript-row { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid #f3f4f6; }
+    .transcript-row:last-child { border-bottom: none; }
+  </style>
+</head>
+<body>
+  <nav>
+    <span class="brand">📋 Transcript PM</span>
+    <a href="/">Transcripts</a>
+    <a href="/projects">Projects</a>
+    <a href="/export/calendar">⬇ Export All (.ics)</a>
+  </nav>
+  <div class="container">
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>
