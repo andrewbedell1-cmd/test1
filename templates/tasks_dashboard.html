@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WorkHub — My Tasks</title>
+  <style>
+    /* ── Reset & Base ───────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                   'Helvetica Neue', Arial, sans-serif;
+      background: #f0f1f3;
+      color: #1e1f21;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    a { color: inherit; text-decoration: none; }
+    button, select, input { font-family: inherit; font-size: inherit; }
+
+    /* ── Layout ─────────────────────────────────────────────────────────── */
+    .layout { display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ─────────────────────────────────────────────────────────── */
+    .sidebar {
+      width: 220px;
+      background: #1b1c1e;
+      color: #8b919e;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0;
+      height: 100vh;
+      z-index: 100;
+      overflow-y: auto;
+    }
+    .sidebar-brand {
+      padding: 18px 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      border-bottom: 1px solid #2a2b2d;
+    }
+    .brand-icon {
+      width: 30px; height: 30px;
+      background: linear-gradient(135deg, #7c3aed, #5b21b6);
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 16px; flex-shrink: 0;
+    }
+    .brand-name { font-size: 16px; font-weight: 700; color: #fff; }
+
+    .sidebar-section { padding: 10px 0; }
+    .sidebar-section + .sidebar-section {
+      border-top: 1px solid #2a2b2d;
+      margin-top: 4px;
+    }
+    .sidebar-label {
+      padding: 4px 14px 6px;
+      font-size: 10.5px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.09em;
+      color: #4b5563;
+    }
+    .sidebar-link {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 14px;
+      font-size: 13px; color: #8b919e;
+      transition: background 0.12s, color 0.12s;
+      border-radius: 0;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .sidebar-link:hover { background: #252628; color: #d1d5db; }
+    .sidebar-link.active { background: #2a2b2d; color: #fff; }
+    .sidebar-link .icon { font-size: 13px; width: 16px; text-align: center; flex-shrink: 0; }
+    .ws-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── Main ────────────────────────────────────────────────────────────── */
+    .main {
+      margin-left: 220px;
+      flex: 1;
+      display: flex; flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ── Topbar ──────────────────────────────────────────────────────────── */
+    .topbar {
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 0 24px;
+      height: 54px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .topbar-title { font-size: 17px; font-weight: 700; color: #111827; }
+    .topbar-actions { display: flex; gap: 8px; }
+
+    /* ── Buttons ─────────────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 7px 13px;
+      border-radius: 6px; font-size: 13px; font-weight: 500;
+      cursor: pointer; border: none;
+      transition: background 0.12s, opacity 0.12s;
+    }
+    .btn-primary { background: #7c3aed; color: #fff; }
+    .btn-primary:hover { background: #6d28d9; }
+    .btn-ghost {
+      background: transparent; color: #6b7280;
+      border: 1px solid #e5e7eb;
+    }
+    .btn-ghost:hover { background: #f9fafb; }
+    .btn-sm { padding: 4px 9px; font-size: 12px; }
+    .btn-icon {
+      padding: 4px 7px; border-radius: 5px; font-size: 13px;
+      background: transparent; color: #9ca3af;
+      border: 1px solid transparent; cursor: pointer;
+    }
+    .btn-icon:hover { background: #f3f4f6; border-color: #e5e7eb; color: #374151; }
+    .btn-icon.danger:hover { background: #fef2f2; border-color: #fecaca; color: #ef4444; }
+
+    /* ── Filters ─────────────────────────────────────────────────────────── */
+    .filters {
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 8px 24px;
+      display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    }
+    .filter-label { font-size: 12px; font-weight: 500; color: #9ca3af; }
+    .filter-select {
+      padding: 5px 10px;
+      border-radius: 6px;
+      border: 1px solid #e5e7eb;
+      font-size: 13px; color: #374151;
+      background: #fff; cursor: pointer;
+      outline: none;
+    }
+    .filter-select:focus { border-color: #7c3aed; }
+
+    /* ── Content ─────────────────────────────────────────────────────────── */
+    .content { padding: 20px 24px; flex: 1; }
+
+    /* ── Status Section ──────────────────────────────────────────────────── */
+    .status-section { margin-bottom: 24px; }
+    .section-header {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 8px; padding: 0 2px;
+    }
+    .status-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .dot-Urgent   { background: #ef4444; box-shadow: 0 0 0 2px #fee2e2; }
+    .dot-Today    { background: #f97316; box-shadow: 0 0 0 2px #ffedd5; }
+    .dot-Upcoming { background: #3b82f6; box-shadow: 0 0 0 2px #dbeafe; }
+    .dot-Complete { background: #22c55e; box-shadow: 0 0 0 2px #dcfce7; }
+
+    .section-title {
+      font-size: 12px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.07em;
+      color: #374151;
+    }
+    .section-count {
+      background: #f3f4f6; color: #6b7280;
+      font-size: 11px; font-weight: 600;
+      padding: 1px 7px; border-radius: 20px;
+    }
+
+    /* ── Task Table ──────────────────────────────────────────────────────── */
+    .task-table {
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      overflow: hidden;
+    }
+    .task-table-header {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) 130px 115px 130px 135px 72px;
+      padding: 7px 16px;
+      background: #f9fafb;
+      border-bottom: 1px solid #f0f1f3;
+      font-size: 10.5px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.07em;
+      color: #9ca3af;
+    }
+    .task-row {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) 130px 115px 130px 135px 72px;
+      padding: 10px 16px;
+      border-bottom: 1px solid #f3f4f6;
+      align-items: center;
+      transition: background 0.1s;
+      gap: 0;
+    }
+    .task-row:last-child { border-bottom: none; }
+    .task-row:hover { background: #fafafa; }
+
+    /* ── Task Title Cell ─────────────────────────────────────────────────── */
+    .task-title-cell { min-width: 0; padding-right: 12px; }
+    .task-title-link {
+      font-size: 14px; font-weight: 500; color: #111827;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      display: block;
+    }
+    .task-title-link:hover { color: #7c3aed; }
+    .task-notes-preview {
+      font-size: 11.5px; color: #9ca3af;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      margin-top: 1px;
+    }
+
+    /* ── Workstream Badge ────────────────────────────────────────────────── */
+    .ws-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 2px 8px; border-radius: 4px;
+      font-size: 11.5px; font-weight: 500;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      max-width: 120px;
+    }
+    .ws-dot-sm { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── Due Date ────────────────────────────────────────────────────────── */
+    .due { font-size: 12.5px; color: #6b7280; }
+    .due.overdue { color: #ef4444; font-weight: 600; }
+    .due.due-today { color: #f97316; font-weight: 600; }
+    .due-label {
+      font-size: 10px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.04em;
+      margin-left: 4px;
+    }
+
+    /* ── Assignee ────────────────────────────────────────────────────────── */
+    .assignee-cell {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 13px; color: #374151;
+      overflow: hidden;
+    }
+    .avatar {
+      width: 24px; height: 24px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 10px; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .assignee-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* ── Status Selector ─────────────────────────────────────────────────── */
+    .status-form { display: inline-flex; }
+    .status-select {
+      padding: 3px 7px; border-radius: 20px;
+      border: none; font-size: 11.5px; font-weight: 600;
+      cursor: pointer; outline: none; appearance: none;
+      -webkit-appearance: none;
+    }
+    .status-select:focus { outline: 2px solid #7c3aed; }
+    .s-Urgent   { background: #fef2f2; color: #dc2626; }
+    .s-Today    { background: #fff7ed; color: #ea580c; }
+    .s-Upcoming { background: #eff6ff; color: #2563eb; }
+    .s-Complete { background: #f0fdf4; color: #16a34a; }
+
+    /* ── Action Buttons ──────────────────────────────────────────────────── */
+    .task-actions { display: flex; gap: 4px; align-items: center; }
+
+    /* ── Add Task Row ────────────────────────────────────────────────────── */
+    .add-task-row {
+      padding: 7px 16px;
+      border-top: 1px dashed #e5e7eb;
+    }
+    .add-task-link {
+      font-size: 12.5px; color: #d1d5db;
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+    .add-task-link:hover { color: #7c3aed; }
+
+    /* ── Empty State ─────────────────────────────────────────────────────── */
+    .empty-state {
+      padding: 22px 16px; text-align: center;
+      font-size: 13px; color: #d1d5db;
+    }
+
+    /* ── Dash cell ───────────────────────────────────────────────────────── */
+    .cell-empty { color: #e5e7eb; font-size: 13px; }
+
+    /* ── Strikethrough for complete ──────────────────────────────────────── */
+    .task-complete .task-title-link {
+      text-decoration: line-through; color: #9ca3af;
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- ── Sidebar ──────────────────────────────────────────────────────────── -->
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">⚡</div>
+      <span class="brand-name">WorkHub</span>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Views</div>
+      <a href="/tasks" class="sidebar-link active">
+        <span class="icon">✓</span> My Tasks
+      </a>
+      <a href="/tasks/new" class="sidebar-link">
+        <span class="icon">＋</span> New Task
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Other</div>
+      <a href="/projects" class="sidebar-link">
+        <span class="icon">◉</span> Projects
+      </a>
+      <a href="/" class="sidebar-link">
+        <span class="icon">↑</span> Transcripts
+      </a>
+    </div>
+
+    {% if workstreams %}
+    <div class="sidebar-section">
+      <div class="sidebar-label">Workstreams</div>
+      {% for ws in workstreams %}
+      <a href="/tasks?workstream_id={{ ws.id }}" class="sidebar-link {% if filter_workstream_id == ws.id %}active{% endif %}">
+        <span class="ws-dot" style="background: {{ ws.color }};"></span>
+        {{ ws.name }}
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </nav>
+
+  <!-- ── Main ─────────────────────────────────────────────────────────────── -->
+  <div class="main">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-title">
+        {%- if filter_workstream_id -%}
+          {%- for ws in workstreams -%}
+            {%- if ws.id == filter_workstream_id -%}{{ ws.name }}{%- endif -%}
+          {%- endfor -%}
+        {%- elif filter_assignee -%}
+          {{ filter_assignee }}'s Tasks
+        {%- else -%}
+          My Tasks
+        {%- endif -%}
+      </div>
+      <div class="topbar-actions">
+        <a href="/tasks/new" class="btn btn-primary">＋ New Task</a>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <form class="filters" method="get" action="/tasks">
+      <span class="filter-label">Filter by:</span>
+
+      <select name="workstream_id" class="filter-select" onchange="this.form.submit()">
+        <option value="">All workstreams</option>
+        {% for ws in workstreams %}
+        <option value="{{ ws.id }}" {% if filter_workstream_id == ws.id %}selected{% endif %}>
+          {{ ws.name }}
+        </option>
+        {% endfor %}
+      </select>
+
+      <select name="assignee" class="filter-select" onchange="this.form.submit()">
+        <option value="">All assignees</option>
+        {% for a in assignees %}
+        <option value="{{ a }}" {% if filter_assignee == a %}selected{% endif %}>{{ a }}</option>
+        {% endfor %}
+      </select>
+
+      {% if filter_workstream_id or filter_assignee %}
+      <a href="/tasks" class="btn btn-ghost btn-sm">✕ Clear</a>
+      {% endif %}
+    </form>
+
+    <!-- Board -->
+    <div class="content">
+      {% for status in statuses %}
+      {% set tasks = grouped[status] %}
+
+      <div class="status-section">
+        <div class="section-header">
+          <div class="status-dot dot-{{ status }}"></div>
+          <span class="section-title">{{ status }}</span>
+          <span class="section-count">{{ tasks | length }}</span>
+        </div>
+
+        <div class="task-table">
+          {% if tasks %}
+          <div class="task-table-header">
+            <div>Task</div>
+            <div>Workstream</div>
+            <div>Due Date</div>
+            <div>Assignee</div>
+            <div>Status</div>
+            <div>Actions</div>
+          </div>
+
+          {% for task in tasks %}
+          <div class="task-row {% if task.status == 'Complete' %}task-complete{% endif %}">
+
+            <!-- Task title + notes preview -->
+            <div class="task-title-cell">
+              <a href="/tasks/{{ task.id }}" class="task-title-link" title="{{ task.title }}">
+                {{ task.title }}
+              </a>
+              {% if task.notes %}
+              <div class="task-notes-preview">{{ task.notes[:70] }}{% if task.notes | length > 70 %}…{% endif %}</div>
+              {% endif %}
+            </div>
+
+            <!-- Workstream -->
+            <div>
+              {% if task.workstream_name %}
+              <span class="ws-badge"
+                    style="background: {{ task.workstream_color }}1a; color: {{ task.workstream_color }};">
+                <span class="ws-dot-sm" style="background: {{ task.workstream_color }};"></span>
+                {{ task.workstream_name }}
+              </span>
+              {% else %}
+              <span class="cell-empty">—</span>
+              {% endif %}
+            </div>
+
+            <!-- Due date -->
+            <div>
+              {% if task.due_date %}
+              <span class="due {% if task.is_overdue %}overdue{% elif task.is_today %}due-today{% endif %}">
+                {{ task.due_date }}
+                {% if task.is_overdue %}<span class="due-label">overdue</span>{% endif %}
+                {% if task.is_today %}<span class="due-label">today</span>{% endif %}
+              </span>
+              {% else %}
+              <span class="cell-empty">—</span>
+              {% endif %}
+            </div>
+
+            <!-- Assignee -->
+            <div class="assignee-cell">
+              {% if task.assignee %}
+              <div class="avatar" style="background: {{ task.assignee | avatar_color }};">
+                {{ task.assignee[0] | upper }}
+              </div>
+              <span class="assignee-name">{{ task.assignee }}</span>
+              {% else %}
+              <span class="cell-empty">—</span>
+              {% endif %}
+            </div>
+
+            <!-- Status (inline change) -->
+            <div>
+              <form class="status-form" method="post" action="/tasks/{{ task.id }}/status">
+                <select name="status"
+                        class="status-select s-{{ task.status }}"
+                        onchange="this.form.submit()"
+                        title="Change status">
+                  {% for s in statuses %}
+                  <option value="{{ s }}" {% if s == task.status %}selected{% endif %}>{{ s }}</option>
+                  {% endfor %}
+                </select>
+              </form>
+            </div>
+
+            <!-- Actions -->
+            <div class="task-actions">
+              <a href="/tasks/{{ task.id }}" class="btn-icon" title="Edit">✎</a>
+              <form method="post" action="/tasks/{{ task.id }}/delete"
+                    style="display:inline;"
+                    onsubmit="return confirm('Delete \u201c{{ task.title }}\u201d?')">
+                <button type="submit" class="btn-icon danger" title="Delete">✕</button>
+              </form>
+            </div>
+
+          </div>
+          {% endfor %}
+          {% else %}
+          <div class="empty-state">No {{ status | lower }} tasks</div>
+          {% endif %}
+
+          <div class="add-task-row">
+            <a href="/tasks/new?status={{ status }}" class="add-task-link">
+              <span>＋</span> Add task
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /layout -->
+</body>
+</html>

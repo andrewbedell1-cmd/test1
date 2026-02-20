@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% if task %}Edit Task{% else %}New Task{% endif %} — WorkHub</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                   'Helvetica Neue', Arial, sans-serif;
+      background: #f0f1f3;
+      color: #1e1f21;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    a { color: inherit; text-decoration: none; }
+    button, select, input, textarea { font-family: inherit; font-size: inherit; }
+
+    /* ── Layout ─────────────────────────────────────────────────────────── */
+    .layout { display: flex; min-height: 100vh; }
+
+    /* ── Sidebar (same as dashboard) ─────────────────────────────────────── */
+    .sidebar {
+      width: 220px; background: #1b1c1e; color: #8b919e;
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0;
+      height: 100vh; z-index: 100; overflow-y: auto;
+    }
+    .sidebar-brand {
+      padding: 18px 14px 16px;
+      display: flex; align-items: center; gap: 9px;
+      border-bottom: 1px solid #2a2b2d;
+    }
+    .brand-icon {
+      width: 30px; height: 30px;
+      background: linear-gradient(135deg, #7c3aed, #5b21b6);
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 16px;
+    }
+    .brand-name { font-size: 16px; font-weight: 700; color: #fff; }
+    .sidebar-section { padding: 10px 0; }
+    .sidebar-section + .sidebar-section { border-top: 1px solid #2a2b2d; margin-top: 4px; }
+    .sidebar-label {
+      padding: 4px 14px 6px; font-size: 10.5px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.09em; color: #4b5563;
+    }
+    .sidebar-link {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 14px; font-size: 13px; color: #8b919e;
+      transition: background 0.12s, color 0.12s;
+    }
+    .sidebar-link:hover { background: #252628; color: #d1d5db; }
+    .sidebar-link.active { background: #2a2b2d; color: #fff; }
+    .sidebar-link .icon { font-size: 13px; width: 16px; text-align: center; }
+
+    /* ── Main ────────────────────────────────────────────────────────────── */
+    .main { margin-left: 220px; flex: 1; display: flex; flex-direction: column; }
+
+    /* ── Topbar ──────────────────────────────────────────────────────────── */
+    .topbar {
+      background: #fff; border-bottom: 1px solid #e5e7eb;
+      padding: 0 24px; height: 54px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 10px; }
+    .breadcrumb { font-size: 13px; color: #9ca3af; display: flex; align-items: center; gap: 6px; }
+    .breadcrumb a { color: #6b7280; }
+    .breadcrumb a:hover { color: #7c3aed; }
+    .topbar-title { font-size: 17px; font-weight: 700; color: #111827; }
+
+    /* ── Form Container ──────────────────────────────────────────────────── */
+    .form-wrap {
+      max-width: 680px;
+      margin: 32px auto;
+      padding: 0 24px;
+      width: 100%;
+    }
+    .form-card {
+      background: #fff;
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+      overflow: hidden;
+    }
+    .form-card-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .form-card-title { font-size: 17px; font-weight: 700; color: #111827; }
+    .form-card-subtitle { font-size: 13px; color: #9ca3af; margin-top: 2px; }
+
+    /* ── Form Fields ─────────────────────────────────────────────────────── */
+    .form-body { padding: 20px 24px; display: flex; flex-direction: column; gap: 18px; }
+
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label {
+      font-size: 12px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      color: #6b7280;
+    }
+    .field-required::after { content: ' *'; color: #ef4444; }
+
+    .input, .textarea, .select {
+      padding: 9px 12px;
+      border-radius: 7px;
+      border: 1px solid #e5e7eb;
+      font-size: 14px; color: #111827;
+      background: #fff;
+      outline: none;
+      transition: border-color 0.15s;
+      width: 100%;
+    }
+    .input:focus, .textarea:focus, .select:focus { border-color: #7c3aed; }
+    .input::placeholder, .textarea::placeholder { color: #d1d5db; }
+
+    .textarea { resize: vertical; min-height: 90px; line-height: 1.55; }
+
+    .select { cursor: pointer; appearance: none; -webkit-appearance: none;
+              background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236b7280'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E");
+              background-repeat: no-repeat; background-position: right 10px center;
+              background-size: 16px; padding-right: 32px; }
+
+    /* Status indicator on select */
+    .status-preview {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 6px;
+    }
+    .status-chip {
+      padding: 3px 10px; border-radius: 20px;
+      font-size: 12px; font-weight: 600;
+    }
+    .chip-Urgent   { background: #fef2f2; color: #dc2626; }
+    .chip-Today    { background: #fff7ed; color: #ea580c; }
+    .chip-Upcoming { background: #eff6ff; color: #2563eb; }
+    .chip-Complete { background: #f0fdf4; color: #16a34a; }
+
+    /* Grid row for two fields side by side */
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    /* New workstream toggle */
+    .ws-toggle {
+      font-size: 12px; color: #7c3aed; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 4px;
+      margin-top: 4px;
+    }
+    .ws-toggle:hover { text-decoration: underline; }
+    #new-ws-field { display: none; margin-top: 8px; }
+
+    /* ── Form Footer ─────────────────────────────────────────────────────── */
+    .form-footer {
+      padding: 16px 24px;
+      border-top: 1px solid #f3f4f6;
+      display: flex; gap: 10px; justify-content: flex-end;
+    }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 8px 16px; border-radius: 7px;
+      font-size: 13px; font-weight: 600;
+      cursor: pointer; border: none;
+      transition: background 0.12s; outline: none;
+    }
+    .btn-primary { background: #7c3aed; color: #fff; }
+    .btn-primary:hover { background: #6d28d9; }
+    .btn-ghost { background: transparent; color: #6b7280; border: 1px solid #e5e7eb; }
+    .btn-ghost:hover { background: #f9fafb; }
+    .btn-danger { background: #fef2f2; color: #ef4444; border: 1px solid #fecaca; }
+    .btn-danger:hover { background: #fee2e2; }
+
+    /* Delete form sits separately */
+    .delete-section {
+      padding: 16px 24px;
+      border-top: 1px solid #fef2f2;
+      display: flex; justify-content: flex-end;
+    }
+
+    /* ── Metadata footer ─────────────────────────────────────────────────── */
+    .meta-bar {
+      padding: 10px 24px;
+      font-size: 11px; color: #d1d5db;
+      border-top: 1px solid #f3f4f6;
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">⚡</div>
+      <span class="brand-name">WorkHub</span>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Views</div>
+      <a href="/tasks" class="sidebar-link">
+        <span class="icon">✓</span> My Tasks
+      </a>
+      <a href="/tasks/new" class="sidebar-link {% if not task %}active{% endif %}">
+        <span class="icon">＋</span> New Task
+      </a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Other</div>
+      <a href="/projects" class="sidebar-link">
+        <span class="icon">◉</span> Projects
+      </a>
+      <a href="/" class="sidebar-link">
+        <span class="icon">↑</span> Transcripts
+      </a>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <div class="main">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="breadcrumb">
+          <a href="/tasks">My Tasks</a>
+          <span>/</span>
+          <span>{% if task %}Edit{% else %}New Task{% endif %}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div class="form-wrap">
+      <div class="form-card">
+        <div class="form-card-header">
+          <div class="form-card-title">{% if task %}Edit Task{% else %}Create New Task{% endif %}</div>
+          <div class="form-card-subtitle">
+            {% if task %}Update the details below and save.
+            {% else %}Fill in the details to add a new task to your board.{% endif %}
+          </div>
+        </div>
+
+        <form method="post"
+              action="{% if task %}/tasks/{{ task.id }}/update{% else %}/tasks/new{% endif %}">
+          <div class="form-body">
+
+            <!-- Title -->
+            <div class="field">
+              <label class="field-required" for="title">Title</label>
+              <input
+                id="title" name="title" type="text"
+                class="input"
+                placeholder="What needs to be done?"
+                value="{{ task.title if task else '' }}"
+                required
+                autofocus
+              />
+            </div>
+
+            <!-- Notes -->
+            <div class="field">
+              <label for="notes">Notes</label>
+              <textarea id="notes" name="notes" class="textarea"
+                        placeholder="Add context, links, or details…">{{ task.notes if task else '' }}</textarea>
+            </div>
+
+            <!-- Workstream + Due Date -->
+            <div class="field-row">
+
+              <!-- Workstream -->
+              <div class="field">
+                <label for="workstream_id">Workstream</label>
+                <select id="workstream_id" name="workstream_id" class="select">
+                  <option value="">— None —</option>
+                  {% for ws in workstreams %}
+                  <option value="{{ ws.id }}"
+                    {% if task and task.workstream_id == ws.id %}selected{% endif %}>
+                    {{ ws.name }}
+                  </option>
+                  {% endfor %}
+                </select>
+                <span class="ws-toggle" onclick="toggleNewWs()">＋ New workstream</span>
+                <div id="new-ws-field">
+                  <input name="new_workstream" type="text" class="input"
+                         placeholder="Workstream name…" />
+                </div>
+              </div>
+
+              <!-- Due Date -->
+              <div class="field">
+                <label for="due_date">Due Date</label>
+                <input
+                  id="due_date" name="due_date" type="date"
+                  class="input"
+                  value="{{ task.due_date if task and task.due_date else '' }}"
+                />
+              </div>
+
+            </div>
+
+            <!-- Assignee + Status -->
+            <div class="field-row">
+
+              <!-- Assignee -->
+              <div class="field">
+                <label for="assignee">Assignee</label>
+                <input
+                  id="assignee" name="assignee" type="text"
+                  class="input"
+                  placeholder="Name or email"
+                  value="{{ task.assignee if task else '' }}"
+                />
+              </div>
+
+              <!-- Status -->
+              <div class="field">
+                <label for="status">Priority Status</label>
+                <select id="status" name="status" class="select" onchange="updateChip(this.value)">
+                  {% for s in statuses %}
+                  <option value="{{ s }}"
+                    {% if s == (task.status if task else prefill_status) %}selected{% endif %}>
+                    {{ s }}
+                  </option>
+                  {% endfor %}
+                </select>
+                <div class="status-preview">
+                  <span id="status-chip" class="status-chip chip-{{ task.status if task else prefill_status }}">
+                    {{ task.status if task else prefill_status }}
+                  </span>
+                </div>
+              </div>
+
+            </div>
+
+          </div><!-- /form-body -->
+
+          <div class="form-footer">
+            <a href="/tasks" class="btn btn-ghost">Cancel</a>
+            <button type="submit" class="btn btn-primary">
+              {% if task %}Save Changes{% else %}Create Task{% endif %}
+            </button>
+          </div>
+        </form>
+
+        {% if task %}
+        <!-- Metadata -->
+        <div class="meta-bar">
+          Created {{ task.created_at[:10] }} &nbsp;·&nbsp; Updated {{ task.updated_at[:10] }}
+          &nbsp;·&nbsp; Source: {{ task.source }}
+        </div>
+
+        <!-- Delete -->
+        <div class="delete-section">
+          <form method="post" action="/tasks/{{ task.id }}/delete"
+                onsubmit="return confirm('Permanently delete this task?')">
+            <button type="submit" class="btn btn-danger">Delete task</button>
+          </form>
+        </div>
+        {% endif %}
+
+      </div><!-- /form-card -->
+    </div><!-- /form-wrap -->
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<script>
+  function updateChip(val) {
+    const chip = document.getElementById('status-chip');
+    chip.className = 'status-chip chip-' + val;
+    chip.textContent = val;
+  }
+  function toggleNewWs() {
+    const f = document.getElementById('new-ws-field');
+    f.style.display = f.style.display === 'none' ? 'block' : 'none';
+    if (f.style.display !== 'none') {
+      f.querySelector('input').focus();
+    }
+  }
+</script>
+</body>
+</html>

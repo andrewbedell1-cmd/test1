@@ -4,7 +4,7 @@ Produces structured notes, action items, and next steps from call transcripts.
 """
 
 import os
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel, Field
 import anthropic
 
@@ -40,11 +40,11 @@ class ActionItem(BaseModel):
 
 class TranscriptAnalysis(BaseModel):
     summary: str = Field(description="Comprehensive multi-paragraph summary capturing all key context, decisions, and outcomes")
-    key_decisions: list[str] = Field(description="Every concrete decision made during the call, as clear statements")
-    action_items: list[ActionItem] = Field(description="All action items, including implied ones")
-    next_steps: list[str] = Field(description="Ordered list of next steps the group should take")
-    participants: list[str] = Field(description="Participants identified in the transcript")
-    topics: list[str] = Field(description="Key topics discussed")
+    key_decisions: List[str] = Field(description="Every concrete decision made during the call, as clear statements")
+    action_items: List[ActionItem] = Field(description="All action items, including implied ones")
+    next_steps: List[str] = Field(description="Ordered list of next steps the group should take")
+    participants: List[str] = Field(description="Participants identified in the transcript")
+    topics: List[str] = Field(description="Key topics discussed")
 
 
 def analyze_transcript(content: str) -> TranscriptAnalysis:
