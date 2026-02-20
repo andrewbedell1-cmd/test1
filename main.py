@@ -18,11 +18,19 @@ import uvicorn
 import db
 import analyzer
 import calendar_export
+import tasks_db
+import tasks_router
 
 app = FastAPI(title="Transcript PM")
 templates = Jinja2Templates(directory="templates")
 
+# ── Initialise both databases ──────────────────────────────────────────────────
 db.init_db()
+tasks_db.init_db()
+tasks_db.seed_data()
+
+# ── Mount the tasks router ─────────────────────────────────────────────────────
+app.include_router(tasks_router.router)
 
 
 # ── Home: list all transcripts ────────────────────────────────────────────────
