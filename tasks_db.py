@@ -7,6 +7,7 @@ import sqlite3
 import json
 from datetime import datetime, timedelta, date
 from pathlib import Path
+from typing import Optional, List
 
 DB_PATH = Path("pm_tasks.db")
 
@@ -56,7 +57,7 @@ def init_db():
 
 # ── Workstreams ────────────────────────────────────────────────────────────────
 
-def list_workstreams() -> list[dict]:
+def list_workstreams() -> List[dict]:
     with get_conn() as conn:
         rows = conn.execute(
             "SELECT * FROM workstreams ORDER BY name"
@@ -64,7 +65,7 @@ def list_workstreams() -> list[dict]:
         return [dict(r) for r in rows]
 
 
-def get_workstream(ws_id: int) -> dict | None:
+def get_workstream(ws_id: int) -> Optional[dict]:
     with get_conn() as conn:
         row = conn.execute(
             "SELECT * FROM workstreams WHERE id = ?", (ws_id,)
@@ -104,10 +105,10 @@ def _enrich(row: dict) -> dict:
 
 
 def list_tasks(
-    status: str | None = None,
-    workstream_id: int | None = None,
-    assignee: str | None = None,
-) -> list[dict]:
+    status: Optional[str] = None,
+    workstream_id: Optional[int] = None,
+    assignee: Optional[str] = None,
+) -> List[dict]:
     with get_conn() as conn:
         clauses, params = [], []
         if status:
@@ -136,7 +137,7 @@ def list_tasks(
         return [_enrich(dict(r)) for r in rows]
 
 
-def get_task(task_id: int) -> dict | None:
+def get_task(task_id: int) -> Optional[dict]:
     with get_conn() as conn:
         row = conn.execute(
             """
@@ -153,8 +154,8 @@ def get_task(task_id: int) -> dict | None:
 def create_task(
     title: str,
     notes: str = "",
-    workstream_id: int | None = None,
-    due_date: str | None = None,
+    workstream_id: Optional[int] = None,
+    due_date: Optional[str] = None,
     assignee: str = "",
     status: str = "Upcoming",
     source: str = "manual",
@@ -179,8 +180,8 @@ def update_task(
     task_id: int,
     title: str,
     notes: str,
-    workstream_id: int | None,
-    due_date: str | None,
+    workstream_id: Optional[int],
+    due_date: Optional[str],
     assignee: str,
     status: str,
 ) -> None:
@@ -211,7 +212,7 @@ def delete_task(task_id: int) -> None:
         conn.execute("DELETE FROM tasks WHERE id=?", (task_id,))
 
 
-def list_assignees() -> list[str]:
+def list_assignees() -> List[str]:
     with get_conn() as conn:
         rows = conn.execute(
             "SELECT DISTINCT assignee FROM tasks WHERE assignee != '' ORDER BY assignee"

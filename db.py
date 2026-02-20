@@ -2,6 +2,7 @@ import sqlite3
 import json
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
 DB_PATH = Path("transcript_pm.db")
 
@@ -78,7 +79,7 @@ def list_projects() -> list[dict]:
         return [dict(r) for r in rows]
 
 
-def get_project(project_id: int) -> dict | None:
+def get_project(project_id: int) -> Optional[dict]:
     with get_conn() as conn:
         row = conn.execute("SELECT * FROM projects WHERE id = ?", (project_id,)).fetchone()
         return dict(row) if row else None
@@ -86,7 +87,7 @@ def get_project(project_id: int) -> dict | None:
 
 # ── Transcripts ───────────────────────────────────────────────────────────────
 
-def save_transcript(filename: str, content: str, project_id: int | None = None) -> int:
+def save_transcript(filename: str, content: str, project_id: Optional[int] = None) -> int:
     with get_conn() as conn:
         cur = conn.execute(
             "INSERT INTO transcripts (project_id, filename, content, created_at) VALUES (?, ?, ?, ?)",
@@ -95,13 +96,13 @@ def save_transcript(filename: str, content: str, project_id: int | None = None) 
         return cur.lastrowid
 
 
-def get_transcript(transcript_id: int) -> dict | None:
+def get_transcript(transcript_id: int) -> Optional[dict]:
     with get_conn() as conn:
         row = conn.execute("SELECT * FROM transcripts WHERE id = ?", (transcript_id,)).fetchone()
         return dict(row) if row else None
 
 
-def list_transcripts(project_id: int | None = None) -> list[dict]:
+def list_transcripts(project_id: Optional[int] = None) -> list[dict]:
     with get_conn() as conn:
         if project_id is not None:
             rows = conn.execute(
@@ -147,7 +148,7 @@ def save_analysis(
         return cur.lastrowid
 
 
-def get_analysis(transcript_id: int) -> dict | None:
+def get_analysis(transcript_id: int) -> Optional[dict]:
     with get_conn() as conn:
         row = conn.execute(
             "SELECT * FROM analyses WHERE transcript_id = ?", (transcript_id,)
@@ -164,7 +165,7 @@ def get_analysis(transcript_id: int) -> dict | None:
 
 # ── Action Items ──────────────────────────────────────────────────────────────
 
-def save_action_items(transcript_id: int, items: list[dict], project_id: int | None = None) -> list[int]:
+def save_action_items(transcript_id: int, items: list[dict], project_id: Optional[int] = None) -> list[int]:
     ids = []
     with get_conn() as conn:
         for item in items:
@@ -188,9 +189,9 @@ def save_action_items(transcript_id: int, items: list[dict], project_id: int | N
 
 
 def list_action_items(
-    transcript_id: int | None = None,
-    project_id: int | None = None,
-    status: str | None = None,
+    transcript_id: Optional[int] = None,
+    project_id: Optional[int] = None,
+    status: Optional[str] = None,
 ) -> list[dict]:
     with get_conn() as conn:
         clauses, params = [], []
@@ -218,6 +219,6 @@ def update_action_item_status(item_id: int, status: str):
         conn.execute("UPDATE action_items SET status = ? WHERE id = ?", (status, item_id))
 
 
-def update_action_item_project(item_id: int, project_id: int | None):
+def update_action_item_project(item_id: int, project_id: Optional[int]):
     with get_conn() as conn:
         conn.execute("UPDATE action_items SET project_id = ? WHERE id = ?", (project_id, item_id))
