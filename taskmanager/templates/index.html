@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Task Manager</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────────────────────── -->
+<header class="header">
+  <div class="header-left">
+    <svg width="30" height="30" viewBox="0 0 30 30" fill="none" aria-hidden="true">
+      <rect width="30" height="30" rx="7" fill="#7B68EE"/>
+      <path d="M8 15l5 5L22 9" stroke="#fff" stroke-width="2.8"
+            stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="app-name">TaskFlow</span>
+  </div>
+  <button class="btn btn-primary" onclick="openAddModal()">+ New Task</button>
+</header>
+
+<!-- ── Board ────────────────────────────────────────────────────── -->
+<main class="board">
+  {% set columns = [
+    ('Urgent',   'urgent'),
+    ('Today',    'today'),
+    ('Upcoming', 'upcoming'),
+    ('Complete', 'complete')
+  ] %}
+
+  {% for label, cls in columns %}
+  <div class="column column-{{ cls }}">
+
+    <div class="column-header">
+      <span class="status-dot dot-{{ cls }}"></span>
+      <span class="column-label">{{ label }}</span>
+      <span class="task-count">{{ tasks_by_status[label] | length }}</span>
+    </div>
+
+    <div class="task-list">
+      {% for task in tasks_by_status[label] %}
+      <div class="task-card" onclick="openEditModal({{ task.id }})">
+
+        {% if task.project %}
+        <span class="project-badge" data-project="{{ task.project }}">{{ task.project }}</span>
+        {% endif %}
+
+        <p class="task-title">{{ task.title }}</p>
+
+        {% if task.notes %}
+        <p class="task-notes">{{ task.notes }}</p>
+        {% endif %}
+
+        <div class="task-footer">
+          {% if task.assignee %}
+          <div class="avatar" data-name="{{ task.assignee }}">
+            {{ task.assignee[0] | upper }}{% if ' ' in task.assignee %}{{ task.assignee.split(' ')[1][0] | upper }}{% endif %}
+          </div>
+          {% endif %}
+          {% if task.due_date %}
+          <span class="due-date" data-date="{{ task.due_date }}">{{ task.due_date }}</span>
+          {% endif %}
+        </div>
+
+      </div>
+      {% endfor %}
+
+      {% if tasks_by_status[label] | length == 0 %}
+      <p class="empty-state">No tasks here</p>
+      {% endif %}
+    </div>
+
+  </div>
+  {% endfor %}
+</main>
+
+<!-- ── Modal ────────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+
+    <div class="modal-header">
+      <h2 class="modal-title" id="modal-title">New Task</h2>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">&#x2715;</button>
+    </div>
+
+    <form id="task-form" onsubmit="handleSubmit(event)">
+      <input type="hidden" id="task-id" />
+
+      <div class="form-group">
+        <label for="form-title">Title <span class="required">*</span></label>
+        <input type="text" id="form-title" placeholder="What needs to be done?" required />
+      </div>
+
+      <div class="form-group">
+        <label for="form-notes">Notes</label>
+        <textarea id="form-notes" placeholder="Add details, context, or links..."></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="form-project">Project / Workstream</label>
+          <input type="text" id="form-project" placeholder="e.g. Backend, Design..." />
+        </div>
+        <div class="form-group">
+          <label for="form-status">Status</label>
+          <select id="form-status">
+            <option value="Urgent">Urgent</option>
+            <option value="Today">Today</option>
+            <option value="Upcoming" selected>Upcoming</option>
+            <option value="Complete">Complete</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="form-due-date">Due Date</label>
+          <input type="date" id="form-due-date" />
+        </div>
+        <div class="form-group">
+          <label for="form-assignee">Assignee</label>
+          <input type="text" id="form-assignee" placeholder="Person's name" />
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-danger" id="delete-btn"
+                onclick="deleteTask()">Delete</button>
+        <div class="modal-actions-right">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Task</button>
+        </div>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
