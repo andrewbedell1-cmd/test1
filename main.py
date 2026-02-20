@@ -6,6 +6,7 @@ action items, and next steps — with SQLite PM storage and iCal export.
 
 import os
 from pathlib import Path
+from typing import Optional
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -50,9 +51,9 @@ async def index(request: Request):
 @app.post("/upload")
 async def upload_transcript(
     request: Request,
-    project_id: int | None = Form(default=None),
+    project_id: Optional[int] = Form(default=None),
     new_project_name: str = Form(default=""),
-    file: UploadFile | None = File(default=None),
+    file: Optional[UploadFile] = File(default=None),
     paste_content: str = Form(default=""),
     filename_hint: str = Form(default="pasted-transcript.txt"),
 ):
@@ -140,7 +141,7 @@ async def update_status(item_id: int, status: str = Form(...), redirect_to: str 
 @app.post("/action/{item_id}/project")
 async def update_project(
     item_id: int,
-    project_id: int | None = Form(default=None),
+    project_id: Optional[int] = Form(default=None),
     redirect_to: str = Form(default="/"),
 ):
     db.update_action_item_project(item_id, project_id if project_id else None)

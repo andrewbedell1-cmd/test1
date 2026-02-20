@@ -2,7 +2,7 @@ import sqlite3
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 
 DB_PATH = Path("transcript_pm.db")
 
@@ -69,7 +69,7 @@ def create_project(name: str, description: str = "") -> int:
         return cur.lastrowid
 
 
-def list_projects() -> list[dict]:
+def list_projects() -> List[dict]:
     with get_conn() as conn:
         rows = conn.execute(
             "SELECT p.*, COUNT(a.id) AS action_count "
@@ -102,7 +102,7 @@ def get_transcript(transcript_id: int) -> Optional[dict]:
         return dict(row) if row else None
 
 
-def list_transcripts(project_id: Optional[int] = None) -> list[dict]:
+def list_transcripts(project_id: Optional[int] = None) -> List[dict]:
     with get_conn() as conn:
         if project_id is not None:
             rows = conn.execute(
@@ -125,10 +125,10 @@ def list_transcripts(project_id: Optional[int] = None) -> list[dict]:
 def save_analysis(
     transcript_id: int,
     summary: str,
-    key_decisions: list[str],
-    next_steps: list[str],
-    participants: list[str],
-    topics: list[str],
+    key_decisions: List[str],
+    next_steps: List[str],
+    participants: List[str],
+    topics: List[str],
 ) -> int:
     with get_conn() as conn:
         cur = conn.execute(
@@ -165,7 +165,7 @@ def get_analysis(transcript_id: int) -> Optional[dict]:
 
 # ── Action Items ──────────────────────────────────────────────────────────────
 
-def save_action_items(transcript_id: int, items: list[dict], project_id: Optional[int] = None) -> list[int]:
+def save_action_items(transcript_id: int, items: List[dict], project_id: Optional[int] = None) -> List[int]:
     ids = []
     with get_conn() as conn:
         for item in items:
@@ -192,7 +192,7 @@ def list_action_items(
     transcript_id: Optional[int] = None,
     project_id: Optional[int] = None,
     status: Optional[str] = None,
-) -> list[dict]:
+) -> List[dict]:
     with get_conn() as conn:
         clauses, params = [], []
         if transcript_id is not None:

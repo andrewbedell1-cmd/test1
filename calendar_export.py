@@ -4,6 +4,7 @@ The resulting file can be imported into Google Calendar, Apple Calendar, Outlook
 """
 
 from datetime import datetime, date, timedelta
+from typing import Optional, List
 from icalendar import Calendar, Event, vText
 import hashlib
 
@@ -13,7 +14,7 @@ def _make_uid(item_id: int, title: str) -> str:
     return f"action-{h}@transcript-pm"
 
 
-def _parse_date(due_date_str: str | None) -> date | None:
+def _parse_date(due_date_str: Optional[str]) -> Optional[date]:
     if not due_date_str:
         return None
     try:
@@ -22,7 +23,7 @@ def _parse_date(due_date_str: str | None) -> date | None:
         return None
 
 
-def build_ical(action_items: list[dict], calendar_name: str = "Transcript Action Items") -> bytes:
+def build_ical(action_items: List[dict], calendar_name: str = "Transcript Action Items") -> bytes:
     """
     Build an iCal file from a list of action item dicts.
     Items without a due_date are given a 1-week-from-now default.
