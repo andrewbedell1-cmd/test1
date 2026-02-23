@@ -398,6 +398,23 @@ a {
   font-weight: 300;
   color: rgba(255,255,255,0.7);
   letter-spacing: 0.1em;
+  overflow: hidden;
+}
+
+.about__photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+
+.about__initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
 }
 
 .about__badge {
@@ -491,6 +508,93 @@ a {
   font-size: 0.9rem;
   color: rgba(255,255,255,0.5);
   line-height: 1.75;
+}
+
+/* ---------- SELECTED WORK ---------- */
+.work {
+  background: var(--cream);
+}
+
+.work__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 32px;
+}
+
+.work-card {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--white);
+  transition: box-shadow 0.35s var(--ease-out), transform 0.35s var(--ease-out);
+}
+
+.work-card:hover {
+  box-shadow: 0 16px 48px rgba(26,18,16,0.10);
+  transform: translateY(-4px);
+}
+
+.work-card__image {
+  width: 100%;
+  height: 240px;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--blush);
+  position: relative;
+}
+
+.work-card__image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 50%, rgba(26,18,16,0.15) 100%);
+}
+
+.work-card__body {
+  padding: 28px 28px 32px;
+}
+
+.work-card__brand {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.5rem;
+}
+
+.work-card__title {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 1.25rem;
+  color: var(--dark);
+  margin-bottom: 0.75rem;
+  line-height: 1.3;
+}
+
+.work-card__desc {
+  font-size: 0.9rem;
+  color: var(--text-light);
+  line-height: 1.75;
+  margin-bottom: 1.25rem;
+}
+
+.work-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--terracotta);
+  background: rgba(160,96,79,0.08);
+  border-radius: 100px;
+  padding: 4px 12px;
 }
 
 /* ---------- EXPERIENCE / TIMELINE ---------- */
@@ -691,6 +795,14 @@ a {
 
   .grid-2 {
     grid-template-columns: 1fr;
+  }
+
+  .work__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .work-card__image {
+    height: 200px;
   }
 
   .about__badge {

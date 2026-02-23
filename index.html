@@ -18,6 +18,7 @@
     <nav class="nav__links">
       <a href="#about">About</a>
       <a href="#services">Services</a>
+      <a href="#work">Work</a>
       <a href="#experience">Experience</a>
       <a href="#contact">Contact</a>
     </nav>
@@ -30,6 +31,7 @@
     <button class="mobile-menu__close" id="menuClose" aria-label="Close menu">&times;</button>
     <a href="#about" class="mobile-link">About</a>
     <a href="#services" class="mobile-link">Services</a>
+    <a href="#work" class="mobile-link">Work</a>
     <a href="#experience" class="mobile-link">Experience</a>
     <a href="#contact" class="mobile-link">Contact</a>
   </div>
@@ -73,7 +75,13 @@
     <div class="container grid-2">
       <div class="about__visual reveal-left">
         <div class="about__frame">
-          <div class="about__initials">LDD</div>
+          <img
+            src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&q=80&fit=crop&crop=faces"
+            alt="Laura Delahunt-Devlin — Beauty Consultant"
+            class="about__photo"
+            onerror="this.style.display='none'; this.parentElement.querySelector('.about__initials').style.display='flex';"
+          />
+          <div class="about__initials" style="display:none;">LDD</div>
         </div>
         <div class="about__badge">
           <span class="about__badge-num">15+</span>
@@ -145,6 +153,76 @@
           <div class="service-card__icon">&#9670;</div>
           <h3>Team Building &amp; Interim Leadership</h3>
           <p>Fractional or interim VP/Director-level leadership for product development and marketing functions during growth, transition, or organisational change.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- SELECTED WORK -->
+  <section class="work section" id="work">
+    <div class="container">
+      <div class="section__header reveal">
+        <p class="section__eyebrow">Selected Work</p>
+        <h2 class="section__title">Brands Shaped,<br />Products Launched</h2>
+        <p class="section__sub">A selection of the iconic brands and product categories I've had the privilege of leading throughout my career.</p>
+      </div>
+      <div class="work__grid">
+
+        <div class="work-card reveal">
+          <div class="work-card__image" style="background-image: url('https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=600&q=80&fit=crop')"></div>
+          <div class="work-card__body">
+            <span class="work-card__brand">Tom Ford Beauty</span>
+            <h3 class="work-card__title">Prestige Complexion &amp; Skincare</h3>
+            <p class="work-card__desc">Led global product development for complexion, skincare, and men's collections at one of fashion's most coveted beauty houses.</p>
+            <div class="work-card__tags">
+              <span class="tag">Complexion</span>
+              <span class="tag">Skincare</span>
+              <span class="tag">Men's</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="work-card reveal">
+          <div class="work-card__image" style="background-image: url('https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=600&q=80&fit=crop')"></div>
+          <div class="work-card__body">
+            <span class="work-card__brand">NARS Cosmetics</span>
+            <h3 class="work-card__title">Complexion, Skincare &amp; Fashion Collaborations</h3>
+            <p class="work-card__desc">Directed global marketing and product development for NARS's most iconic complexion and skincare lines, including high-profile fashion collaboration programmes.</p>
+            <div class="work-card__tags">
+              <span class="tag">Complexion</span>
+              <span class="tag">Marketing</span>
+              <span class="tag">Collaborations</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="work-card reveal">
+          <div class="work-card__image" style="background-image: url('https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&q=80&fit=crop')"></div>
+          <div class="work-card__body">
+            <span class="work-card__brand">Smashbox Cosmetics</span>
+            <h3 class="work-card__title">Primers &amp; Complexion Strategy</h3>
+            <p class="work-card__desc">Drove global product development strategy for complexion and primer categories — one of Smashbox's core brand equities — within The Estée Lauder Companies.</p>
+            <div class="work-card__tags">
+              <span class="tag">Primers</span>
+              <span class="tag">Complexion</span>
+              <span class="tag">Strategy</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="work-card reveal">
+          <div class="work-card__image" style="background-image: url('https://images.unsplash.com/photo-1631729371254-42c2892f0e6e?w=600&q=80&fit=crop')"></div>
+          <div class="work-card__body">
+            <span class="work-card__brand">Maybelline New York</span>
+            <h3 class="work-card__title">Mass-Market Lip &amp; Eye</h3>
+            <p class="work-card__desc">Developed and launched high-volume lip and eye products distributed globally, combining commercial rigour with standout creative product thinking at L'Oréal scale.</p>
+            <div class="work-card__tags">
+              <span class="tag">Lip</span>
+              <span class="tag">Eye</span>
+              <span class="tag">Global Launch</span>
+            </div>
+          </div>
         </div>
 
       </div>
