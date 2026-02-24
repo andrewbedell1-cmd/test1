@@ -39,11 +39,43 @@
   <!-- HERO -->
   <section class="hero" id="home">
     <div class="hero__bg"></div>
-    <div class="hero__content">
-      <p class="hero__eyebrow reveal">Beauty &amp; Cosmetics Consulting</p>
-      <h1 class="hero__name reveal">Laura<br />Delahunt-Devlin</h1>
-      <p class="hero__tagline reveal">Transforming vision into iconic beauty products.<br />From brief to shelf — with expertise born at the world's leading brands.</p>
-      <a href="#contact" class="btn reveal">Work With Me</a>
+    <div class="hero__split">
+      <div class="hero__content">
+        <p class="hero__eyebrow reveal">Beauty &amp; Cosmetics Consulting</p>
+        <h1 class="hero__name reveal">Laura<br />Delahunt-Devlin</h1>
+        <p class="hero__tagline reveal">Transforming vision into iconic beauty products.<br />From brief to shelf — with expertise born at the world's leading brands.</p>
+        <div class="hero__actions reveal">
+          <a href="#contact" class="btn">Work With Me</a>
+          <a href="#work" class="hero__link">View Selected Work</a>
+        </div>
+      </div>
+      <div class="hero__visual reveal-right">
+        <div class="hero__img-frame">
+          <img
+            src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=700&q=85&fit=crop"
+            alt="Beauty and cosmetics"
+            class="hero__img"
+            onerror="this.parentElement.style.background='linear-gradient(145deg,var(--blush),rgba(201,137,122,0.6))'"
+          />
+          <div class="hero__img-accent"></div>
+        </div>
+        <div class="hero__stat-bar">
+          <div class="hero__stat">
+            <span class="hero__stat-num">15+</span>
+            <span class="hero__stat-label">Years Experience</span>
+          </div>
+          <div class="hero__stat-divider"></div>
+          <div class="hero__stat">
+            <span class="hero__stat-num">6</span>
+            <span class="hero__stat-label">Iconic Brands</span>
+          </div>
+          <div class="hero__stat-divider"></div>
+          <div class="hero__stat">
+            <span class="hero__stat-num">3</span>
+            <span class="hero__stat-label">Continents</span>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="hero__scroll">
       <span></span>
@@ -347,8 +379,15 @@
   <footer class="footer">
     <div class="container footer__inner">
       <div class="footer__logo">Laura Delahunt-Devlin</div>
-      <p class="footer__copy">Laura Delahunt-Devlin Consulting LLC · Los Angeles, California</p>
-      <p class="footer__copy">&copy; <span id="year"></span> Laura Delahunt-Devlin. All rights reserved.</p>
+      <p class="footer__tagline">Beauty &amp; Cosmetics Consulting · Los Angeles, CA</p>
+      <nav class="footer__nav">
+        <a href="#about">About</a>
+        <a href="#services">Services</a>
+        <a href="#work">Work</a>
+        <a href="#experience">Experience</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <p class="footer__copy">&copy; <span id="year"></span> Laura Delahunt-Devlin Consulting LLC. All rights reserved.</p>
     </div>
   </footer>
 
